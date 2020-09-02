@@ -43,13 +43,13 @@ ratingRouter.post('/', async function (req, res) {
         .query(
             `INSERT INTO Show_Ratings VALUES(
                                          ${id},
-                                        '${amount}',
-                                        '${showRatingShowID}',
+                                         ${amount},
+                                         ${showRatingShowID},
                                          ${showRatingUserID},
                                          ${showRatingEventID}
                                     )`
         )
-    res.send(rating[0][0].id)
+    res.send(rating)
 })
 
 module.exports = ratingRouter

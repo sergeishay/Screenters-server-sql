@@ -17,6 +17,36 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
     language: 'en',
 })
 
+eventRouter.get('/', async function (req, res) {
+    const events = await sequelize
+        .query(`SELECT * FROM Events`)
+    res.send(events[0])
+})
+
+eventRouter.get('/:id', async function (req, res) {
+    const { id } = req.params
+    const event = {}
+    const hashes = []
+    const eventData = await sequelize
+        .query(
+            `SELECT * FROM Events
+            WHERE Events.id = ${id}`
+        )
+    event['eventData'] = eventData[0][0]
+    const hashtags = await sequelize
+        .query(
+            `SELECT * 
+             FROM Hashtags AS h, Events_Hashtags AS e
+             WHERE h.id = e.hashtagId
+             AND e.eventId = ${eventData[0][0].id}`
+        )
+    for (let hashtag of hashtags[0]) {
+        hashes.push(hashtag)
+    }
+    event['hashtags'] = hashes
+    res.send(event)
+})
+
 eventRouter.post('/event', async function (req, res) {
     const {
         id,
@@ -26,7 +56,9 @@ eventRouter.post('/event', async function (req, res) {
         videoURL,
         price,
         creatorID,
-        category
+        categoryID,
+        coverImgURL,
+        hashtags
     } = req.body
     const event = await sequelize
         .query(
@@ -38,9 +70,32 @@ eventRouter.post('/event', async function (req, res) {
                                         '${videoURL}',
                                          ${price},
                                          ${creatorID},
-                                         ${category}
+                                         ${categoryID},
+                                        '${coverImgURL}'
                                     )`
         )
+    for (let hashtag of hashtags) {
+        let hashtagID = await sequelize
+            .query(`SELECT id FROM Hashtags
+                Where Hashtags.name = '${hashtag}'`)
+        if (!hashtagID[1].length) {
+            let hash = await sequelize
+                .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
+            await sequelize.query(
+                    `INSERT INTO Events_Hashtags VALUES(
+                                    ${event[0]},
+                                    ${hash[0]}
+                                )`
+                )
+        } else {
+             await sequelize.query(
+                    `INSERT INTO Events_Hashtags VALUES(
+                    ${event[0]},
+                    ${hashtagID[0]}
+                    )`
+                )
+        }
+    }
     res.send(event)
 })
 
@@ -60,7 +115,7 @@ eventRouter.post('/show', async function (req, res) {
                                          ${showEventID}
                                     )`
         )
-    res.send(show[0])
+    res.send(show)
 })
 
 eventRouter.put('/:id', async function (req, res) {

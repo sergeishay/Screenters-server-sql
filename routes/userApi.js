@@ -29,54 +29,42 @@ userRouter.get('/:id', async function (req, res) {
     const user = {}
     const pastShows = []
     const futureShows = []
-    const nowYear = parseInt(moment().format().slice(0, 4))
-    const nowMonth = parseInt(moment().format().slice(5, 7))
-    const nowDay = parseInt(moment().format().slice(8, 10))
-    const nowHour = parseInt(moment().format().slice(11, 13))
-    const nowMinute = parseInt(moment().format().slice(14, 16))
-    const nowSecond = parseInt(moment().format().slice(17, 19))
-
     const userData = await sequelize
         .query(
-            `SELECT username, imageURL FROM Users
+            `SELECT id, username, imageURL FROM Users
             WHERE Users.id = ${id}`
         )
     user['username'] = userData[0][0].username
     user['imageURL'] = userData[0][0].imageURL
-    const shows = await sequelize.query(
-        `SELECT * 
+    const shows = await sequelize
+        .query(
+            `SELECT * 
              FROM Shows AS s, User_Shows AS u
              WHERE s.id = u.showId
-             AND u.userId = ${userData[0][0].id}
-             GROUP BY u.userId
-             ORDER BY s.startTime`
-    )
-    // console.log(shows[0])
+             AND u.userId = ${userData[0][0].id}`
+        )
     for (let show of shows[0]) {
-
-        let showYear = parseInt(show.slice(0, 4))
-        let showMonth = parseInt(show.slice(5, 7))
-        let showDay = parseInt(show.slice(8, 10))
-        let showHour = parseInt(show.slice(11, 13))
-        let showMinute = parseInt(show.slice(14, 16))
-        let showSecond = parseInt(show.slice(17, 19))
-
-        if (
-            nowYear <= showYear &&
-            nowMonth <= showMonth &&
-            nowDay <= showDay &&
-            nowHour <= showHour &&
-            nowMinute <= showMinute &&
-            nowSecond <= showSecond
-        ) futureShows.push(show)
+        if (moment() < moment(show.startTime).tz("Europe/Paris"))
+            futureShows.push(show)
         else pastShows.push(show)
     }
-
     user['pastShows'] = pastShows
     user['futureShows'] = futureShows
-    // console.log(user)
     res.send(user)
 })
+
+userRouter.post('/show', async function (req, res) {
+    const { userID, showID } = req.body
+    const userShow = await sequelize
+        .query(
+            `INSERT INTO User_Shows VALUES(
+                                ${userID},
+                                ${showID}
+                            )`
+        )
+    res.send(userShow)
+})
+
 
 userRouter.post('/', async function (req, res) {
     const {
@@ -121,8 +109,8 @@ userRouter.post('/', async function (req, res) {
                 `SELECT * FROM Users
             WHERE Users.id = ${id}`
             )
-            res.send(user[0][0])
-    }else(res.send('saving error'))
+        res.send(user[0][0])
+    } else (res.send('saving error'))
 })
 
 userRouter.put('/:id', async function (req, res) {

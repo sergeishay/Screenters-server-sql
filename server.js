@@ -17,11 +17,13 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With')
     next()
 })
-
-app.use('/api/Creators/', creatorRouter)
-app.use('/api/Reviews/', reviewRouter)
-app.use('/api/Ratings/', ratingRouter)
-app.use('/api/Events/', eventRouter)
-app.use('/api/Users/', userRouter)
+// app.get('/ok',function(req,res){
+//     res.send('ok')
+// })
+app.use('/api/creators/', creatorRouter)
+app.use('/api/reviews/', reviewRouter)
+app.use('/api/ratings/', ratingRouter)
+app.use('/api/events/', eventRouter)
+app.use('/api/users/', userRouter)
 
 app.listen(8080, () => console.log("server up and running on port 8080"))

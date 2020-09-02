@@ -50,10 +50,10 @@ reviewRouter.post('/creator', async function (req, res) {
                                          ${reviewUserID},
                                          ${reviewCreatorID},
                                         '${time}',
-                                        '${parentReview}'
+                                         ${parentReview}
                                     )`
         )
-    res.send(review[0][0].id)
+    res.send(review)
 })
 
 reviewRouter.post('/show', async function (req, res) {
@@ -80,7 +80,7 @@ reviewRouter.post('/show', async function (req, res) {
                                         ${reviewEventID}
                                     )`
         )
-    res.send(review[0][0].id)
+    res.send(review)
 })
 
 reviewRouter.delete('/:id', async function (req, res) {

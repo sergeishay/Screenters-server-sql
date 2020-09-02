@@ -11,11 +11,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-<<<<<<< HEAD
     "moment": "^2.27.0",
-=======
-    "faker": "^5.1.0",
->>>>>>> c7112bcb6d6eafb404ab1eae4c35e765e316ebdf
     "mysql2": "^2.1.0",
     "sequelize": "^6.3.4"
   }
