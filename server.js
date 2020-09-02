@@ -1,25 +1,11 @@
 const express = require('express')
-const Sequelize = require('sequelize')
+const creatorRouter = require('./routes/creatorApi')
+const reviewRouter = require('./routes/reviewApi')
+const ratingRouter = require('./routes/ratingApi')
+const eventRouter = require('./routes/eventApi')
+const userRouter = require('./routes/userApi')
 const path = require('path')
 const app = express()
-// const api = require('./server/api')
-require('dotenv').config()
-
-const { DB_URL, DB_USER, DB_PASS, DB_NAME, DB_PORT } = process.env
-const sequelize = new Sequelize(DB_NAME,DB_USER,DB_PASS,{
-    host: DB_URL,
-    port: DB_PORT,
-    logging: console.log,
-    maxConcurrentQueries: 100,
-    dialect: 'mysql',
-    dialectOptions: {
-        ssl: 'Amazon RDS'
-    },
-    pool: {maxConnections: 5, maxIdleTime: 30},
-    language: 'en',
-})
-
-sequelize.query('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, name VARCHAR(20))')
 
 app.use(express.static(path.join(__dirname, 'dist')))
 app.use(express.static(path.join(__dirname, 'node_modules')))
@@ -32,5 +18,10 @@ app.use(function (req, res, next) {
     next()
 })
 
-// app.use('/', api)
+app.use('/api/Creators/', creatorRouter)
+app.use('/api/Reviews/', reviewRouter)
+app.use('/api/Ratings/', ratingRouter)
+app.use('/api/Events/', eventRouter)
+app.use('/api/Users/', userRouter)
+
 app.listen(8080, () => console.log("server up and running on port 8080"))
