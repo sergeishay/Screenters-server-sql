@@ -1,9 +1,9 @@
-const express = require('express')
 const creatorRouter = require('./routes/creatorApi')
 const reviewRouter = require('./routes/reviewApi')
 const ratingRouter = require('./routes/ratingApi')
 const eventRouter = require('./routes/eventApi')
 const userRouter = require('./routes/userApi')
+const express = require('express')
 const path = require('path')
 const app = express()
 
@@ -17,9 +17,6 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With')
     next()
 })
-// app.get('/ok',function(req,res){
-//     res.send('ok')
-// })
 app.use('/api/creators/', creatorRouter)
 app.use('/api/reviews/', reviewRouter)
 app.use('/api/ratings/', ratingRouter)

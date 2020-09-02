@@ -2,20 +2,31 @@ const express = require('express')
 const Sequelize = require('sequelize')
 const eventRouter = express.Router()
 require('dotenv').config()
-const { DB_URL, DB_USER, DB_PASS, DB_NAME, DB_PORT } = process.env
+const {
+    DB_URL,
+    DB_USER,
+    DB_PASS,
+    DB_NAME,
+    DB_PORT
+} = process.env
 
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
-    host: DB_URL,
-    port: DB_PORT,
-    logging: console.log,
-    maxConcurrentQueries: 100,
-    dialect: 'mysql',
-    dialectOptions: {
-        ssl: 'Amazon RDS'
-    },
-    pool: { maxConnections: 5, maxIdleTime: 30 },
-    language: 'en',
-})
+const sequelize = new Sequelize(
+    DB_NAME,
+    DB_USER,
+    DB_PASS,
+    {
+        host: DB_URL,
+        port: DB_PORT,
+        logging: console.log,
+        maxConcurrentQueries: 100,
+        dialect: 'mysql',
+        dialectOptions: {
+            ssl: 'Amazon RDS'
+        },
+        pool: { maxConnections: 5, maxIdleTime: 30 },
+        language: 'en',
+    }
+)
 
 eventRouter.get('/', async function (req, res) {
     const events = await sequelize
@@ -32,17 +43,18 @@ eventRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Events
             WHERE Events.id = ${id}`
         )
-    event['eventData'] = eventData[0][0]
     const hashtags = await sequelize
         .query(
             `SELECT * 
-             FROM Hashtags AS h, Events_Hashtags AS e
-             WHERE h.id = e.hashtagId
-             AND e.eventId = ${eventData[0][0].id}`
+            FROM Hashtags AS h,
+                 Events_Hashtags AS e
+            WHERE h.id = e.hashtagId
+            AND e.eventId = ${eventData[0][0].id}`
         )
     for (let hashtag of hashtags[0]) {
         hashes.push(hashtag)
     }
+    event['eventData'] = eventData[0][0]
     event['hashtags'] = hashes
     res.send(event)
 })
@@ -82,18 +94,18 @@ eventRouter.post('/event', async function (req, res) {
             let hash = await sequelize
                 .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
             await sequelize.query(
-                    `INSERT INTO Events_Hashtags VALUES(
+                `INSERT INTO Events_Hashtags VALUES(
                                     ${event[0]},
                                     ${hash[0]}
                                 )`
-                )
+            )
         } else {
-             await sequelize.query(
-                    `INSERT INTO Events_Hashtags VALUES(
+            await sequelize.query(
+                `INSERT INTO Events_Hashtags VALUES(
                     ${event[0]},
                     ${hashtagID[0]}
                     )`
-                )
+            )
         }
     }
     res.send(event)

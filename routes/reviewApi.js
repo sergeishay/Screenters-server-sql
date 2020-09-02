@@ -2,26 +2,39 @@ const express = require('express')
 const Sequelize = require('sequelize')
 const reviewRouter = express.Router()
 require('dotenv').config()
-const { DB_URL, DB_USER, DB_PASS, DB_NAME, DB_PORT } = process.env
+const {
+    DB_URL,
+    DB_USER,
+    DB_PASS,
+    DB_NAME,
+    DB_PORT
+} = process.env
 
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
-    host: DB_URL,
-    port: DB_PORT,
-    logging: console.log,
-    maxConcurrentQueries: 100,
-    dialect: 'mysql',
-    dialectOptions: {
-        ssl: 'Amazon RDS'
-    },
-    pool: { maxConnections: 5, maxIdleTime: 30 },
-    language: 'en',
-})
+const sequelize = new Sequelize(
+    DB_NAME,
+    DB_USER,
+    DB_PASS,
+    {
+        host: DB_URL,
+        port: DB_PORT,
+        logging: console.log,
+        maxConcurrentQueries: 100,
+        dialect: 'mysql',
+        dialectOptions: {
+            ssl: 'Amazon RDS'
+        },
+        pool: { maxConnections: 5, maxIdleTime: 30 },
+        language: 'en',
+    }
+)
 
 
 reviewRouter.get('/:id', async function (req, res) {
     const { id } = req.params
     const { tableName } = req.body
-    const table = tableName === 'Event' ? 'Show_Reviews' : tableName + '_Reviews'
+    const table = tableName === 'Event' ?
+                                 'Show_Reviews' :
+                                  tableName + '_Reviews'
     const Reviews = await sequelize
         .query(
             `SELECT * FROM ${table}

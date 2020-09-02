@@ -2,20 +2,31 @@ const express = require('express')
 const Sequelize = require('sequelize')
 const creatorRouter = express.Router()
 require('dotenv').config()
-const { DB_URL, DB_USER, DB_PASS, DB_NAME, DB_PORT } = process.env
+const {
+    DB_URL,
+    DB_USER,
+    DB_PASS,
+    DB_NAME,
+    DB_PORT
+} = process.env
 
-const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
-    host: DB_URL,
-    port: DB_PORT,
-    logging: console.log,
-    maxConcurrentQueries: 100,
-    dialect: 'mysql',
-    dialectOptions: {
-        ssl: 'Amazon RDS'
-    },
-    pool: { maxConnections: 5, maxIdleTime: 30 },
-    language: 'en',
-})
+const sequelize = new Sequelize(
+    DB_NAME,
+    DB_USER,
+    DB_PASS,
+    {
+        host: DB_URL,
+        port: DB_PORT,
+        logging: console.log,
+        maxConcurrentQueries: 100,
+        dialect: 'mysql',
+        dialectOptions: {
+            ssl: 'Amazon RDS'
+        },
+        pool: { maxConnections: 5, maxIdleTime: 30 },
+        language: 'en',
+    }
+)
 
 creatorRouter.get('/', async function (req, res) {
     const { isEvents, isShows } = req.query
@@ -23,7 +34,9 @@ creatorRouter.get('/', async function (req, res) {
         const creators = await sequelize
             .query(
                 `SELECT *
-                    FROM Users AS u, Events AS e, Shows AS s
+                    FROM Users AS u,
+                         Events AS e,
+                         Shows AS s
                     WHERE s.eventsId = e.id
                     AND e.creatorId = u.id`
             )
@@ -33,7 +46,8 @@ creatorRouter.get('/', async function (req, res) {
         const creators = await sequelize
             .query(
                 `SELECT *
-                     FROM Users AS u, Events AS e
+                     FROM Users AS u,
+                          Events AS e
                      WHERE e.creatorId = u.id`
             )
         res.send(creators[0])
@@ -45,10 +59,9 @@ creatorRouter.get('/', async function (req, res) {
                     FROM Users
                     WHERE userRole = 'Creator'
                     AND id NOT IN(SELECT creatorId
-                                    FROM Events)`
+                                FROM Events)`
             )
         res.send(creators[0])
-
     }
 })
 
@@ -60,21 +73,21 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Users
             WHERE Users.id = ${id}`
         )
-    creator['creatorData'] = creatorData
 
     const creatorEvents = await sequelize
         .query(
             `SELECT * FROM Events
-                WHERE creatorId = ${id}`
+            WHERE creatorId = ${id}`
         )
-    creator['creatorEvents'] = creatorEvents[0]
 
     const creatorShows = await sequelize
         .query(
             `SELECT * FROM Shows
-                    GROUP BY eventId
-                    WHERE eventId = ${id}`
+                GROUP BY eventId
+                WHERE eventId = ${id}`
         )
+    creator['creatorData'] = creatorData
+    creator['creatorEvents'] = creatorEvents[0]
     for (let event of creator.creatorEvents) {
         event['shows'] = creatorShows[0].filter(s => s.eventId === event.id)
     }
