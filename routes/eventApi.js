@@ -31,6 +31,7 @@ const sequelize = new Sequelize(
 eventRouter.get('/', async function (req, res) {
     const events = await sequelize
         .query(`SELECT * FROM Events`)
+        console.log("here")
     res.send(events[0])
 })
 
