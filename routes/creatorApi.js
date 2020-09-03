@@ -94,6 +94,21 @@ creatorRouter.get('/:id', async function (req, res) {
     res.send(creator)
 })
 
+creatorRouter.get('/general/details', async function (req, res) {
+    const general = {}
+    const categories = await sequelize
+        .query(
+            `SELECT * FROM Categories`
+        )
+    const ratings = await sequelize
+        .query(
+            `SELECT * FROM Show_Ratings`
+        )
+        general['categories'] = [...categories[0]]
+        general['ratings'] = [...ratings[0]]
+    res.send(general)
+})
+
 creatorRouter.post('/', async function (req, res) {
     const {
         id,
