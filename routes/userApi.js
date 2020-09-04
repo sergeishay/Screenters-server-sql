@@ -53,7 +53,7 @@ userRouter.get('/:id', async function (req, res) {
             `SELECT * 
             FROM Shows AS s, User_Shows AS u
             WHERE s.id = u.showId
-            AND u.userId = ${userData[0][0].id}`
+            AND u.userId = '${userData[0][0].id}'`
         )
     for (let show of shows[0]) {
         moment() < moment(show.startTime).tz("Europe/Paris") ?
@@ -72,11 +72,11 @@ userRouter.post('/show', async function (req, res) {
     const userShow = await sequelize
         .query(
             `INSERT INTO User_Shows VALUES(
-                                ${userID},
+                               '${userID}',
                                 ${showID}
                             )`
         )
-    if (userShow[1].length) {
+    if (userShow[1] == 1) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM User_Shows
@@ -107,7 +107,7 @@ userRouter.post('/', async function (req, res) {
     const isUserSaved = await sequelize
         .query(
             `INSERT INTO Users VALUES(
-                                         ${id},
+                                        '${id}',
                                         '${firstName}',
                                         '${lastName}',
                                         '${username}',
@@ -123,12 +123,11 @@ userRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
-0
-    if (isUserSaved[1].length) {
+    if (isUserSaved[1] == 1) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Users
-            WHERE Users.id = ${isUserSaved[0]}`
+            WHERE Users.id = '${isUserSaved[0]}'`
             )
         res.send(saved[0][0])
     } else res.send('saving error')
