@@ -128,7 +128,7 @@ eventRouter.get('/:id', async function (req, res) {
     res.send(event)
 })
 
-eventRouter.post('/event/:creatorID', async function (req, res) {
+eventRouter.post('/event/', async function (req, res) {
     const {
         id,
         name,
@@ -150,12 +150,11 @@ eventRouter.post('/event/:creatorID', async function (req, res) {
                                         '${imageURL}',
                                         '${videoURL}',
                                          ${price},
-                                         ${creatorID},
+                                        '${creatorID}',
                                          ${categoryID},
                                         '${coverImgURL}'
                                     )`
         )
-        console.log(event[0])
     for (let hashtag of hashtags) {
         let hashtagID = await sequelize
             .query(`SELECT id FROM Hashtags
@@ -178,13 +177,15 @@ eventRouter.post('/event/:creatorID', async function (req, res) {
             )
         }
     }
-    if (isEventSaved[1].length) {
+    console.log(isEventSaved , "================================")
+    if (isEventSaved[1]==1) {
         const saved = await sequelize
-            .query(
-                `SELECT * FROM Events
-            WHERE Events.id = ${saved[0]}`
+        .query(
+            `SELECT * FROM Events
+            WHERE Events.id = ${isEventSaved[0]}`
             )
-        res.send(isEventSaved[0][0])
+            // console.log(saved)
+        res.send(saved[0][0])
     } else res.send('saving error')
 })
 
