@@ -28,19 +28,28 @@ const sequelize = new Sequelize(
     }
 )
 
+const Events = []
+let event = {}
+const hashes = []
 eventRouter.get('/', async function (req, res) {
-    const Events = []
-    const event = {}
-    const hashes = []
     const events = await sequelize
         .query(`SELECT * FROM Events`)
     for (let Event of events[0]) {
+        let Show = {}
+        const Shows = []
         const shows = await sequelize
             .query(
-                `SELECT sh.id AS id, startTime, endTime, amount
-            FROM Shows AS sh, Show_Ratings AS sr
-            WHERE sh.showEventID = ${Event.id}`
+                `SELECT *
+            FROM Shows 
+            WHERE showEventID = ${Event.id}`
             )
+        const ratings = await sequelize
+            .query(
+                `SELECT AVG(amount) AS rating, showRatingShowID
+            FROM Show_Ratings
+            GROUP BY Show_Ratings.showRatingShowID`
+            )
+
         const hashtags = await sequelize
             .query(
                 `SELECT * 
@@ -52,18 +61,29 @@ eventRouter.get('/', async function (req, res) {
         for (let hashtag of hashtags[0]) {
             hashes.push(hashtag)
         }
-        event['event'] = { ...Event }
-        event.event['shows'] = [...shows[0]]
-        event.event['hashtags'] = [...hashes]
+
+        for (let show of shows[0]) {
+            Show = { ...show }
+            let found = ratings[0].find(r => r.showRatingShowID === show.id)
+            if (found) Show['rating'] = found.rating.slice(0, 3)
+            Shows.push({ ...Show })
+        }
+
+        event = { ...Event }
+        event['shows'] = [...Shows]
+        event['hashtags'] = [...hashes]
         Events.push({ ...event })
     }
     res.send(Events)
+
 })
 
 eventRouter.get('/:id', async function (req, res) {
     const { id } = req.params
-    const event = {}
+    let event = {}
     const hashes = []
+    let Show = {}
+    const Shows = []
     const eventData = await sequelize
         .query(
             `SELECT * FROM Events
@@ -71,28 +91,43 @@ eventRouter.get('/:id', async function (req, res) {
         )
     const shows = await sequelize
         .query(
-            `SELECT * 
-            FROM Shows, Show_Ratings
-            WHERE Shows.showEventID = ${eventData[0][0].id}`
+            `SELECT *
+    FROM Shows 
+    WHERE showEventID = ${eventData[0][0].id}`
         )
+    const ratings = await sequelize
+        .query(
+            `SELECT AVG(amount) AS rating, showRatingShowID
+    FROM Show_Ratings
+    GROUP BY Show_Ratings.showRatingShowID`
+        )
+
     const hashtags = await sequelize
         .query(
             `SELECT * 
-            FROM Hashtags AS h,
-                 Events_Hashtags AS e
-            WHERE h.id = e.hashtagId
-            AND e.eventId = ${eventData[0][0].id}`
+    FROM Hashtags AS h,
+    Events_Hashtags AS e
+    WHERE h.id = e.hashtagId
+    AND e.eventId = ${eventData[0][0].id}`
         )
     for (let hashtag of hashtags[0]) {
         hashes.push(hashtag)
     }
-    event['event'] = eventData[0][0]
-    event.event['shows'] = [...shows[0]]
-    event.event['hashtags'] = hashes
+
+    for (let show of shows[0]) {
+        Show = { ...show }
+        let found = ratings[0].find(r => r.showRatingShowID === show.id)
+        if (found) Show['rating'] = found.rating.slice(0, 3)
+        Shows.push({ ...Show })
+    }
+
+    event = eventData[0][0]
+    event['shows'] = [...Shows]
+    event['hashtags'] = [...hashes]
     res.send(event)
 })
 
-eventRouter.post('/event', async function (req, res) {
+eventRouter.post('/event/:creatorID', async function (req, res) {
     const {
         id,
         name,
@@ -105,7 +140,7 @@ eventRouter.post('/event', async function (req, res) {
         coverImgURL,
         hashtags
     } = req.body
-    const event = await sequelize
+    const isEventSaved = await sequelize
         .query(
             `INSERT INTO Events VALUES(
                                          ${id},
@@ -141,7 +176,14 @@ eventRouter.post('/event', async function (req, res) {
             )
         }
     }
-    res.send(event)
+    if (isEventSaved[1].length) {
+        const saved = await sequelize
+            .query(
+                `SELECT * FROM Events
+            WHERE Events.id = ${saved[0]}`
+            )
+        res.send(isEventSaved[0][0])
+    } else res.send('saving error')
 })
 
 eventRouter.post('/show', async function (req, res) {
@@ -151,7 +193,7 @@ eventRouter.post('/show', async function (req, res) {
         endTime,
         showEventID,
     } = req.body
-    const show = await sequelize
+    const isShowSaved = await sequelize
         .query(
             `INSERT INTO Shows VALUES(
                                          ${id},
@@ -160,16 +202,25 @@ eventRouter.post('/show', async function (req, res) {
                                          ${showEventID}
                                     )`
         )
-    res.send(show)
+    if (isShowSaved[1].length) {
+        const saved = await sequelize
+            .query(
+                `SELECT * FROM Shows
+                WHERE Shows.id = ${isShowSaved[0]}`
+            )
+        res.send(saved[0][0])
+    } else res.send('saving error')
 })
 
 eventRouter.put('/:id', async function (req, res) {
     const { field, value } = req.body
     const { id } = req.params
+    if (typeof value === 'string') value = `'${value}'`
+
     const event = await sequelize
         .query(
             `UPDATE Events
-        SET ${field} = '${value}'
+        SET ${field} = ${value}
         WHERE Events.id = ${id}`
         )
     res.send(event)
