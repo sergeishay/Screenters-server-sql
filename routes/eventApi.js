@@ -127,7 +127,7 @@ eventRouter.get('/:id', async function (req, res) {
     res.send(event)
 })
 
-eventRouter.post('/event/:creatorID', async function (req, res) {
+eventRouter.post('/event', async function (req, res) {
     const {
         id,
         name,
@@ -149,7 +149,7 @@ eventRouter.post('/event/:creatorID', async function (req, res) {
                                         '${imageURL}',
                                         '${videoURL}',
                                          ${price},
-                                         ${creatorID},
+                                        '${creatorID}',
                                          ${categoryID},
                                         '${coverImgURL}'
                                     )`
@@ -202,7 +202,7 @@ eventRouter.post('/show', async function (req, res) {
                                          ${showEventID}
                                     )`
         )
-    if (isShowSaved[1].length) {
+    if (isShowSaved[1]==1) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Shows

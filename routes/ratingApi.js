@@ -31,9 +31,9 @@ const sequelize = new Sequelize(
 ratingRouter.get('/:id', async function (req, res) {
     const { id } = req.params
     const { tableName } = req.body
-    const table = tableName === 'Event' ? 
-                                'Show_Ratings' :
-                                 tableName + '_Ratings'
+    const table = tableName === 'Event' ?
+        'Show_Ratings' :
+        tableName + '_Ratings'
     const Ratings = await sequelize
         .query(
             `SELECT * FROM ${table}
@@ -60,14 +60,14 @@ ratingRouter.post('/', async function (req, res) {
                                          ${showRatingEventID}
                                     )`
         )
-        if (isRatingSaved[1].length) {
-            const saved = await sequelize
-                .query(
-                    `SELECT * FROM Show_Ratings
+    if (isRatingSaved[1] == 1) {
+        const saved = await sequelize
+            .query(
+                `SELECT * FROM Show_Ratings
                 WHERE Show_Ratings.id = ${isRatingSaved[0]}`
-                )
-            res.send(saved[0][0])
-        } else res.send('saving error')      
+            )
+        res.send(saved[0][0])
+    } else res.send('saving error')
 })
 
 module.exports = ratingRouter

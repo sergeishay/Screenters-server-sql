@@ -66,7 +66,7 @@ reviewRouter.post('/creator', async function (req, res) {
                                          ${parentReview}
                                     )`
         )
-        if (isReviewSaved[1].length) {
+        if (isReviewSaved[1]==1) {
             const saved = await sequelize
                 .query(
                     `SELECT * FROM Creator_Reviews
@@ -100,7 +100,7 @@ reviewRouter.post('/show', async function (req, res) {
                                         ${reviewEventID}
                                     )`
         )
-        if (isReviewSaved[1].length) {
+        if (isReviewSaved[1]==1) {
             const saved = await sequelize
                 .query(
                     `SELECT * FROM Show_Reviews
