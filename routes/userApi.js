@@ -29,6 +29,7 @@ const sequelize = new Sequelize(
     }
 )
 
+
 userRouter.get('/', async function (req, res) {
     const users = await sequelize
         .query(`SELECT * FROM Users`)
@@ -43,8 +44,9 @@ userRouter.get('/:id', async function (req, res) {
     const futureShows = []
     const userData = await sequelize
         .query(
-            `SELECT id, username, imageURL FROM Users
-            WHERE Users.id = ${id}`
+            `SELECT id, username, imageURL
+             FROM Users
+             WHERE Users.id = '${id}'`
         )
     const shows = await sequelize
         .query(
@@ -54,9 +56,9 @@ userRouter.get('/:id', async function (req, res) {
             AND u.userId = ${userData[0][0].id}`
         )
     for (let show of shows[0]) {
-        if (moment() < moment(show.startTime).tz("Europe/Paris"))
-            futureShows.push(show)
-        else pastShows.push(show)
+        moment() < moment(show.startTime).tz("Europe/Paris") ?
+            futureShows.push(show) :
+            pastShows.push(show)
     }
     user['username'] = userData[0][0].username
     user['imageURL'] = userData[0][0].imageURL
@@ -74,7 +76,14 @@ userRouter.post('/show', async function (req, res) {
                                 ${showID}
                             )`
         )
-    res.send(userShow)
+    if (userShow[1].length) {
+        const saved = await sequelize
+            .query(
+                `SELECT * FROM User_Shows
+                WHERE ${userShow[0]}`
+            )
+        res.send(saved[0][0])
+    } else (res.send('saving error'))
 })
 
 
@@ -114,27 +123,35 @@ userRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
-
-    if (isUserSaved[1]) {
-        const user = await sequelize
+0
+    if (isUserSaved[1].length) {
+        const saved = await sequelize
             .query(
                 `SELECT * FROM Users
-            WHERE Users.id = ${id}`
+            WHERE Users.id = ${isUserSaved[0]}`
             )
-        res.send(user[0][0])
-    } else (res.send('saving error'))
+        res.send(saved[0][0])
+    } else res.send('saving error')
 })
 
 userRouter.put('/:id', async function (req, res) {
     const { field, value } = req.body
     const { id } = req.params
+    if (typeof value === 'string') value = `'${value}'`
+
     const user = await sequelize
         .query(
             `UPDATE Users
-            SET ${field} = '${value}'
+            SET ${field} = ${value}
             WHERE Users.id = ${id}`
         )
     res.send(user)
+
+    // const saved = await sequelize
+    //     .query(
+    //         `SELECT * FROM User_Shows
+    //          WHERE ${user[0]}`
+    //     )
 })
 
 userRouter.delete('/:id', async function (req, res) {

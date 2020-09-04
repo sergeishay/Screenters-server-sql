@@ -84,7 +84,7 @@ creatorRouter.get('/:id', async function (req, res) {
         .query(
             `SELECT * FROM Shows
                 GROUP BY eventId
-                WHERE eventId = ${id}`
+                WHERE eventId = '${creatorEvents[0][0].id}'`
         )
     creator['creatorData'] = creatorData
     creator['creatorEvents'] = creatorEvents[0]
@@ -126,7 +126,7 @@ creatorRouter.post('/', async function (req, res) {
         isAuthorized,
         phone
     } = req.body
-    const creator = await sequelize
+    const isCreatorSaved = await sequelize
         .query(
             `INSERT INTO Users VALUES(
                                          ${id},
@@ -145,16 +145,25 @@ creatorRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
-    res.send(creator[0][0].id)
+        if (isCreatorSaved[1].length) {
+            const saved = await sequelize
+                .query(
+                    `SELECT * FROM Users
+                    WHERE Users.id = ${isCreatorSaved[0]}`
+                )
+            res.send(saved[0][0])
+        } else res.send('saving error')   
 })
 
 creatorRouter.put('/:id', async function (req, res) {
     const { field, value } = req.body
     const { id } = req.params
+    if (typeof value === 'string') value = `'${value}'`
+
     const user = await sequelize
         .query(
             `UPDATE Users
-            SET ${field} = '${value}'
+            SET ${field} = ${value}
             WHERE Users.id = ${id}`
         )
     res.send(user)
