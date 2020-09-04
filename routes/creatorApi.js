@@ -136,7 +136,7 @@ creatorRouter.post('/', async function (req, res) {
     const isCreatorSaved = await sequelize
         .query(
             `INSERT INTO Users VALUES(
-                                        '${id}',
+                                        '${escape(id)}',
                                         '${firstName}',
                                         '${lastName}',
                                         '${username}',

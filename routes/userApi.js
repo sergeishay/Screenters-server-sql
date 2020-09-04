@@ -71,7 +71,7 @@ userRouter.post('/show', async function (req, res) {
     const userShow = await sequelize
         .query(
             `INSERT INTO User_Shows VALUES(
-                               '${userID}',
+                               '${escape(userID)}',
                                 ${showID}
                             )`
         )
@@ -106,7 +106,7 @@ userRouter.post('/', async function (req, res) {
     const isUserSaved = await sequelize
         .query(
             `INSERT INTO Users VALUES(
-                                        '${id}',
+                                        '${escape(id)}',
                                         '${firstName}',
                                         '${lastName}',
                                         '${username}',
