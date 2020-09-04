@@ -29,10 +29,36 @@ const sequelize = new Sequelize(
 )
 
 eventRouter.get('/', async function (req, res) {
+    const Events = []
+    const event = {}
+    const hashes = []
     const events = await sequelize
         .query(`SELECT * FROM Events`)
-        console.log("here")
-    res.send(events[0])
+    // res.send(events[0])
+    for (let Event of events[0]) {
+        const shows = await sequelize
+            .query(
+                `SELECT sh.id AS id, startTime, endTime, amount
+            FROM Shows AS sh, Show_Ratings AS sr
+            WHERE sh.showEventID = ${Event.id}`
+            )
+        const hashtags = await sequelize
+            .query(
+                `SELECT * 
+            FROM Hashtags AS h,
+            Events_Hashtags AS e
+            WHERE h.id = e.hashtagId
+            AND e.eventId = ${Event.id}`
+            )
+        for (let hashtag of hashtags[0]) {
+            hashes.push(hashtag)
+        }
+        event['event'] = { ...Event }
+        event.event['shows'] = [...shows[0]]
+        event.event['hashtags'] = [...hashes]
+        Events.push({ ...event })
+    }
+    res.send(Events)
 })
 
 eventRouter.get('/:id', async function (req, res) {
@@ -43,6 +69,12 @@ eventRouter.get('/:id', async function (req, res) {
         .query(
             `SELECT * FROM Events
             WHERE Events.id = ${id}`
+        )
+    const shows = await sequelize
+        .query(
+            `SELECT * 
+            FROM Shows, Show_Ratings
+            WHERE Shows.showEventID = ${eventData[0][0].id}`
         )
     const hashtags = await sequelize
         .query(
@@ -55,8 +87,9 @@ eventRouter.get('/:id', async function (req, res) {
     for (let hashtag of hashtags[0]) {
         hashes.push(hashtag)
     }
-    event['eventData'] = eventData[0][0]
-    event['hashtags'] = hashes
+    event['event'] = eventData[0][0]
+    event.event['shows'] = [...shows[0]]
+    event.event['hashtags'] = hashes
     res.send(event)
 })
 
@@ -87,6 +120,7 @@ eventRouter.post('/event', async function (req, res) {
                                         '${coverImgURL}'
                                     )`
         )
+        console.log(event[0])
     for (let hashtag of hashtags) {
         let hashtagID = await sequelize
             .query(`SELECT id FROM Hashtags

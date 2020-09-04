@@ -32,6 +32,7 @@ const sequelize = new Sequelize(
 userRouter.get('/', async function (req, res) {
     const users = await sequelize
         .query(`SELECT * FROM Users`)
+        console.log(users)
     res.send(users[0])
 })
 

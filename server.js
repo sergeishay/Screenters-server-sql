@@ -18,6 +18,7 @@ app.use(function (req, res, next) {
     next()
 })
 app.use('/api/creators/', creatorRouter)
+app.use('/api/users/', userRouter)
 app.use('/api/reviews/', reviewRouter)
 app.use('/api/ratings/', ratingRouter)
 app.use('/api/events/', eventRouter)
