@@ -166,27 +166,38 @@ creatorRouter.post('/', async function (req, res) {
 })
 
 creatorRouter.put('/:id', async function (req, res) {
-    const { field, value } = req.body
     const { id } = req.params
+    const { field } = req.body
+    let { value } = req.body
     if (typeof value === 'string') value = `'${value}'`
 
-    const user = await sequelize
-        .query(
-            `UPDATE Users
+    try {
+        await sequelize
+            .query(
+                `UPDATE Users
             SET ${field} = ${value}
-            WHERE Users.id = '${id}'`
-        )
-    res.send(user)
+            WHERE id = '${id}'`
+            )
+        res.send(true)
+    }
+    catch (err) {
+        res.send(false)
+    }
 })
 
 creatorRouter.delete('/:id', async function (req, res) {
     const { id } = req.params
-    const user = await sequelize
-        .query(
-            `DELETE FROM Users
-            WHERE Users.id = '${id}'`
-        )
-    res.send(user)
+    try {
+        await sequelize
+            .query(
+                `DELETE FROM Users
+            WHERE id = '${id}'`
+            )
+        res.send(id)
+    }
+    catch (err) {
+        res.send('delete err')
+    }
 })
 
 module.exports = creatorRouter
