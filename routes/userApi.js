@@ -41,29 +41,33 @@ userRouter.get('/:id', async function (req, res) {
     const user = {}
     const pastShows = []
     const futureShows = []
-    const userData = await sequelize
-        .query(
-            `SELECT id, username, imageURL
+    try {
+        const userData = await sequelize
+            .query(
+                `SELECT id, username, imageURL
              FROM Users
              WHERE Users.id = '${id}'`
-        )
-    const shows = await sequelize
-        .query(
-            `SELECT * 
+            )
+        const shows = await sequelize
+            .query(
+                `SELECT * 
             FROM Shows AS s, User_Shows AS u
             WHERE s.id = u.showId
             AND u.userId = '${userData[0][0].id}'`
-        )
-    for (let show of shows[0]) {
-        moment() < moment(show.startTime).tz("Europe/Paris") ?
-            futureShows.push(show) :
-            pastShows.push(show)
+            )
+        for (let show of shows[0]) {
+            moment() < moment(show.startTime).tz("Europe/Paris") ?
+                futureShows.push(show) :
+                pastShows.push(show)
+        }
+        user['username'] = userData[0][0].username
+        user['imageURL'] = userData[0][0].imageURL
+        user['pastShows'] = pastShows
+        user['futureShows'] = futureShows
+        res.send(user)
+    } catch (err) {
+        res.send(null)
     }
-    user['username'] = userData[0][0].username
-    user['imageURL'] = userData[0][0].imageURL
-    user['pastShows'] = pastShows
-    user['futureShows'] = futureShows
-    res.send(user)
 })
 
 userRouter.post('/show', async function (req, res) {
@@ -141,7 +145,7 @@ userRouter.put('/:id', async function (req, res) {
         .query(
             `UPDATE Users
             SET ${field} = ${value}
-            WHERE Users.id = ${id}`
+            WHERE Users.id = '${id}'`
         )
     res.send(user)
 
@@ -157,7 +161,7 @@ userRouter.delete('/:id', async function (req, res) {
     const user = await sequelize
         .query(
             `DELETE FROM Users
-            WHERE Users.id = ${id}`
+            WHERE Users.id = '${id}'`
         )
     res.send(user)
 })

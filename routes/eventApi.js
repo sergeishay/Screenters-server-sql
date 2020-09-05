@@ -221,7 +221,7 @@ eventRouter.put('/:id', async function (req, res) {
         .query(
             `UPDATE Events
         SET ${field} = ${value}
-        WHERE Events.id = ${id}`
+        WHERE Events.id = '${id}'`
         )
     res.send(event)
 })
@@ -232,7 +232,7 @@ eventRouter.delete('/:id', async function (req, res) {
     const event = await sequelize
         .query(
             `DELETE FROM ${table}
-                WHERE ${table}.id = ${id}`
+                WHERE ${table}.id = '${id}'`
         )
     res.send(event[0][0].id)
 })

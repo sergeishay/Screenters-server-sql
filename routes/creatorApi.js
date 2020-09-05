@@ -38,8 +38,8 @@ creatorRouter.get('/', async function (req, res) {
                     FROM Users AS u,
                          Events AS e,
                          Shows AS s
-                    WHERE s.eventsId = e.id
-                    AND e.creatorId = u.id`
+                    WHERE s.showEventID = e.id
+                    AND e.creatorID = u.id`
             )
         res.send(creators[0])
     }
@@ -49,7 +49,7 @@ creatorRouter.get('/', async function (req, res) {
                 `SELECT *
                      FROM Users AS u,
                           Events AS e
-                     WHERE e.creatorId = u.id`
+                     WHERE e.creatorID = u.id`
             )
         res.send(creators[0])
     }
@@ -59,7 +59,7 @@ creatorRouter.get('/', async function (req, res) {
                 `SELECT *
                     FROM Users
                     WHERE userRole = 'Creator'
-                    AND id NOT IN(SELECT creatorId
+                    AND id NOT IN(SELECT creatorID
                                 FROM Events)`
             )
         res.send(creators[0])
@@ -74,27 +74,30 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Users
             WHERE Users.id = '${id}'`
         )
+    creator['Data'] = Data[0][0]
 
     const Events = await sequelize
         .query(
             `SELECT * FROM Events
-            WHERE creatorId = '${id}'`
+            WHERE creatorID = '${id}'`
         )
-
-    const Shows = await sequelize
-        .query(
-            `SELECT * FROM Shows
+    console.log(Events)
+    if (Events[0].length) {
+        const Shows = await sequelize
+            .query(
+                `SELECT * FROM Shows
             WHERE showEventID = ${Events[0][0].id}
             GROUP BY showEventID`
-        )
-    creator['Data'] = Data[0][0]
-    creator['Events'] = Events[0][0]
-    for (let event of creator.Events) {
-        for (let show of Shows[0]) {
-            if(show.showEventID===event.id){
-            moment() < moment(show.startTime).tz("Europe/Paris") ?
-            event['futureShows'].push(show) :
-                event['pastShows'].push(show)
+            )
+
+        creator['Events'] = Events[0][0]
+        for (let event of creator.Events) {
+            for (let show of Shows[0]) {
+                if (show.showEventID === event.id) {
+                    moment() < moment(show.startTime).tz("Europe/Paris") ?
+                        event['futureShows'].push(show) :
+                        event['pastShows'].push(show)
+                }
             }
         }
     }
@@ -111,8 +114,8 @@ creatorRouter.get('/general/details', async function (req, res) {
         .query(
             `SELECT * FROM Show_Ratings`
         )
-        general['categories'] = [...categories[0]]
-        general['ratings'] = [...ratings[0]]
+    general['categories'] = [...categories[0]]
+    general['ratings'] = [...ratings[0]]
     res.send(general)
 })
 
@@ -152,14 +155,14 @@ creatorRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
-        if (isCreatorSaved[1] == 1) {
-            const saved = await sequelize
-                .query(
-                    `SELECT * FROM Users
+    if (isCreatorSaved[1] == 1) {
+        const saved = await sequelize
+            .query(
+                `SELECT * FROM Users
                     WHERE Users.id = '${isCreatorSaved[0]}'`
-                )
-            res.send(saved[0][0])
-        } else res.send('saving error')   
+            )
+        res.send(saved[0][0])
+    } else res.send('saving error')
 })
 
 creatorRouter.put('/:id', async function (req, res) {
@@ -171,7 +174,7 @@ creatorRouter.put('/:id', async function (req, res) {
         .query(
             `UPDATE Users
             SET ${field} = ${value}
-            WHERE Users.id = ${id}`
+            WHERE Users.id = '${id}'`
         )
     res.send(user)
 })
@@ -181,7 +184,7 @@ creatorRouter.delete('/:id', async function (req, res) {
     const user = await sequelize
         .query(
             `DELETE FROM Users
-            WHERE Users.id = ${id}`
+            WHERE Users.id = '${id}'`
         )
     res.send(user)
 })
