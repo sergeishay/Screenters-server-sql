@@ -28,17 +28,15 @@ const sequelize = new Sequelize(
     }
 )
 
-
 eventRouter.get('/', async function (req, res) {
     const Events = []
     let event = {}
-    const hashes = []
     const events = await sequelize
-        .query(`SELECT * FROM Events`)
-    // res.send(events[0])
+    .query(`SELECT * FROM Events`)
     for (let Event of events[0]) {
         let Show = {}
         const Shows = []
+        const hashes = []
         const shows = await sequelize
             .query(
                 `SELECT *
@@ -236,7 +234,7 @@ eventRouter.delete('/:id', async function (req, res) {
     const event = await sequelize
         .query(
             `DELETE FROM ${table}
-                WHERE ${table}.id = ${id}`
+                WHERE ${table}.id = '${id}'`
         )
     res.send(event[0][0].id)
 })

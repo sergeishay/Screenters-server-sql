@@ -32,8 +32,8 @@ reviewRouter.get('/:id', async function (req, res) {
     const { id } = req.params
     const { tableName } = req.body
     const table = tableName === 'Event' ?
-                                 'Show_Reviews' :
-                                  tableName + '_Reviews'
+                                 'Show_Review' :
+                                  tableName + '_Review'
                                  
     const Reviews = await sequelize
         .query(
@@ -104,7 +104,7 @@ reviewRouter.post('/show', async function (req, res) {
             const saved = await sequelize
                 .query(
                     `SELECT * FROM Show_Reviews
-                WHERE Show_Reviews.id = ${saved[0]}`
+                WHERE Show_Review.id = ${saved[0]}`
                 )
             res.send(isReviewSaved[0][0])
         } else res.send('saving error')    
@@ -116,7 +116,7 @@ reviewRouter.delete('/:id', async function (req, res) {
     const review = await sequelize
         .query(
             `DELETE FROM ${table}
-            WHERE ${table}.id = ${id}`
+            WHERE ${table}.id = '${id}'`
         )
     res.send(review[0][0].id)
 })
