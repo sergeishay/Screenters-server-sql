@@ -28,10 +28,11 @@ const sequelize = new Sequelize(
     }
 )
 
-const Events = []
-let event = {}
-const hashes = []
+
 eventRouter.get('/', async function (req, res) {
+    const Events = []
+    let event = {}
+    const hashes = []
     const events = await sequelize
         .query(`SELECT * FROM Events`)
     // res.send(events[0])
@@ -177,14 +178,14 @@ eventRouter.post('/event', async function (req, res) {
             )
         }
     }
-    console.log(isEventSaved , "================================")
-    if (isEventSaved[1]==1) {
+
+    if (isEventSaved[1] == 1) {
         const saved = await sequelize
-        .query(
-            `SELECT * FROM Events
+            .query(
+                `SELECT * FROM Events
             WHERE Events.id = ${isEventSaved[0]}`
             )
-            // console.log(saved)
+
         res.send(saved[0][0])
     } else res.send('saving error')
 })
@@ -205,7 +206,7 @@ eventRouter.post('/show', async function (req, res) {
                                          ${showEventID}
                                     )`
         )
-    if (isShowSaved[1]==1) {
+    if (isShowSaved[1] == 1) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Shows

@@ -33,7 +33,6 @@ const sequelize = new Sequelize(
 userRouter.get('/', async function (req, res) {
     const users = await sequelize
         .query(`SELECT * FROM Users`)
-        console.log(users)
     res.send(users[0])
 })
 
@@ -129,12 +128,16 @@ userRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
+        // const isUserHere =await sequelize.query(`SELECT `)
+        //         console.log(isUserHere)
     if (isUserSaved[1] == 1) {
+
         const saved = await sequelize
-            .query(
-                `SELECT * FROM Users
-            WHERE Users.id = '${isUserSaved[0]}'`
+        .query(
+            `SELECT * FROM Users
+            WHERE Users.id = '${id}'`
             )
+            console.log(saved , "fdgfgsdfgsdfgfdhsdfgsfgsdfgfdhsgfsgdfggs")
         res.send(saved[0][0])
     } else res.send('saving error')
 })
