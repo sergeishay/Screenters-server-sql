@@ -136,9 +136,10 @@ creatorRouter.post('/', async function (req, res) {
         isAuthorized,
         phone
     } = req.body
-    const isCreatorSaved = await sequelize
-        .query(
-            `INSERT INTO Users VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Users VALUES(
                                         '${escape(id)}',
                                         '${firstName}',
                                         '${lastName}',
@@ -154,15 +155,16 @@ creatorRouter.post('/', async function (req, res) {
                                          ${isAuthorized},
                                         '${phone}'
                                     )`
-        )
-    if (isCreatorSaved[1] == 1) {
+            )
         const saved = await sequelize
             .query(
                 `SELECT * FROM Users
-                    WHERE Users.id = '${isCreatorSaved[0]}'`
+                    WHERE Users.id = '${id}'`
             )
         res.send(saved[0][0])
-    } else res.send('saving error')
+    } catch (err) {
+        res.send('saving error')
+    }
 })
 
 creatorRouter.put('/:id', async function (req, res) {
