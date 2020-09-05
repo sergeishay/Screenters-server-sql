@@ -28,15 +28,15 @@ const sequelize = new Sequelize(
     }
 )
 
-const Events = []
-let event = {}
-const hashes = []
 eventRouter.get('/', async function (req, res) {
+    const Events = []
+    let event = {}
     const events = await sequelize
-        .query(`SELECT * FROM Events`)
+    .query(`SELECT * FROM Events`)
     for (let Event of events[0]) {
         let Show = {}
         const Shows = []
+        const hashes = []
         const shows = await sequelize
             .query(
                 `SELECT *
