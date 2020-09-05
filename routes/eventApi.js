@@ -128,11 +128,7 @@ eventRouter.get('/:id', async function (req, res) {
     res.send(event)
 })
 
-<<<<<<< HEAD
-eventRouter.post('/event/', async function (req, res) {
-=======
 eventRouter.post('/event', async function (req, res) {
->>>>>>> 30b483acf7460002f5636914403c15c04b3ea439
     const {
         id,
         name,

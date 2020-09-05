@@ -42,12 +42,14 @@ userRouter.get('/:id', async function (req, res) {
     const user = {}
     const pastShows = []
     const futureShows = []
-    const userData = await sequelize
+    try{
+        const userData = await sequelize
         .query(
             `SELECT id, username, imageURL
              FROM Users
              WHERE Users.id = '${id}'`
         )
+    
     const shows = await sequelize
         .query(
             `SELECT * 
@@ -65,6 +67,10 @@ userRouter.get('/:id', async function (req, res) {
     user['pastShows'] = pastShows
     user['futureShows'] = futureShows
     res.send(user)
+    } catch (err){
+        res.send(null)
+    }
+    
 })
 
 userRouter.post('/show', async function (req, res) {
