@@ -39,7 +39,7 @@ creatorRouter.get('/', async function (req, res) {
                          Events AS e,
                          Shows AS s
                     WHERE s.showEventID = e.id
-                    AND e.creatorID = u.id`
+                    AND e.creatorID = 'u.id'`
             )
         res.send(creators[0])
     }
@@ -49,7 +49,7 @@ creatorRouter.get('/', async function (req, res) {
                 `SELECT *
                      FROM Users AS u,
                           Events AS e
-                     WHERE e.creatorID = u.id`
+                     WHERE e.creatorID = 'u.id'`
             )
         res.send(creators[0])
     }
@@ -81,7 +81,6 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Events
             WHERE creatorID = '${id}'`
         )
-    console.log(Events)
     if (Events[0].length) {
         const Shows = await sequelize
             .query(
@@ -162,7 +161,8 @@ creatorRouter.post('/', async function (req, res) {
                     WHERE Users.id = '${id}'`
             )
         res.send(saved[0][0])
-    } catch (err) {
+    }
+    catch (err) {
         res.send('saving error')
     }
 })

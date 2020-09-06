@@ -135,7 +135,7 @@ userRouter.post('/', async function (req, res) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Users
-            WHERE Users.id = '${id}'`
+            WHERE Users.id = '${escape(id)}'`
             )
         res.send(saved[0][0])
     }
