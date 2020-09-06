@@ -197,6 +197,7 @@ eventRouter.post('/show', async function (req, res) {
         endTime,
         showEventID,
     } = req.body
+    console.log(req.body)
     try {
         await sequelize
             .query(
@@ -212,6 +213,7 @@ eventRouter.post('/show', async function (req, res) {
                 `SELECT * FROM Shows
                 WHERE Shows.id = LAST_INSERT_ID()`
             )
+            console.log(saved)
         res.send(saved[0][0])
     } catch (err) {
         res.send('saving error')

@@ -140,13 +140,14 @@ userRouter.post('/', async function (req, res) {
                                          ${isAuthorized},
                                         '${phone}'
                                     )`
-            )
-
+        )
+                    console.log("firstQuery")
         const saved = await sequelize
             .query(
                 `SELECT * FROM Users
             WHERE Users.id = '${escape(id)}'`
             )
+            console.log(saved , "fdgfgsdfgsdfgfdhsdfgsfgsdfgfdhsgfsgdfggs")
         res.send(saved[0][0])
     }
     catch (err) {
