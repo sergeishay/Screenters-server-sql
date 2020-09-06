@@ -35,9 +35,16 @@ userRouter.get('/', async function (req, res) {
         .query(`SELECT * FROM Users`)
     res.send(users[0])
 })
-
+const clearUserId =(userId)=>{
+    let newLineIndex = userId.indexOf('|')
+    let newUserId = userId
+    if(newLineIndex>0){
+        newUserId = newUserId.substring(newLineIndex + 1 , newUserId.length - 1)
+    }
+    return newUserId
+}
 userRouter.get('/:id', async function (req, res) {
-    const { id } = req.params
+    const id = clearUserId(req.params.id)
     const user = {}
     const pastShows = []
     const futureShows = []
@@ -46,7 +53,7 @@ userRouter.get('/:id', async function (req, res) {
             .query(
                 `SELECT id, username, imageURL
              FROM Users
-             WHERE Users.id = '${escape(id)}'`
+             WHERE Users.id LIKE '%${id}%'`
             )
         const shows = await sequelize
             .query(
