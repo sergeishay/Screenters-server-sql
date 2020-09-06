@@ -34,12 +34,11 @@ creatorRouter.get('/', async function (req, res) {
     if (isEvents && isShows) {
         const creators = await sequelize
             .query(
-                `SELECT u.firstName, u.lastName, u.about, u.imageURL, AVG(s.amount) AS rating
-                FROM Users AS u, Show_Ratings AS s
-                WHERE u.userRole = 'Creator'
-                AND s.showRatingUserID = u.id`
+                `SELECT DISTINCT u.firstName, u.lastName, u.about, u.imageURL, AVG(s.amount) AS rating
+                FROM Users AS u, Show_Ratings AS s, Events AS e
+                WHERE u.userRole = 'CREATOR'
+                AND s.showRatingEventID = e.id`
             )
-        console.log(creators)
         res.send(creators[0])
     }
     else if (isEvents) {
