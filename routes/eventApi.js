@@ -207,7 +207,7 @@ eventRouter.post('/show', async function (req, res) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Shows
-                WHERE Shows.id = ${id}`
+                WHERE Shows.id = LAST_INSERT_ID()`
             )
         res.send(saved[0][0])
     } catch (err) {
@@ -253,8 +253,6 @@ eventRouter.delete('/', async function (req, res) {
         res.send('delete err')
     }
 })
-
-
 
 module.exports = eventRouter
 
