@@ -39,7 +39,7 @@ creatorRouter.get('/', async function (req, res) {
                          Events AS e,
                          Shows AS s
                     WHERE s.showEventID = e.id
-                    AND e.creatorID = u.id`
+                    AND e.creatorID = 'u.id'`
             )
         res.send(creators[0])
     }
@@ -49,7 +49,7 @@ creatorRouter.get('/', async function (req, res) {
                 `SELECT *
                      FROM Users AS u,
                           Events AS e
-                     WHERE e.creatorID = u.id`
+                     WHERE e.creatorID = 'u.id'`
             )
         res.send(creators[0])
     }
@@ -74,6 +74,7 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Users
             WHERE Users.id = '${id}'`
         )
+        console.log(Data)
     creator['Data'] = Data[0][0]
 
     const Events = await sequelize
@@ -81,7 +82,6 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Events
             WHERE creatorID = '${id}'`
         )
-    console.log(Events)
     if (Events[0].length) {
         const Shows = await sequelize
             .query(
@@ -89,6 +89,7 @@ creatorRouter.get('/:id', async function (req, res) {
             WHERE showEventID = ${Events[0][0].id}
             GROUP BY showEventID`
             )
+            console.log(Data)
 
         creator['Events'] = Events[0][0]
         for (let event of creator.Events) {
@@ -136,9 +137,10 @@ creatorRouter.post('/', async function (req, res) {
         isAuthorized,
         phone
     } = req.body
-    const isCreatorSaved = await sequelize
-        .query(
-            `INSERT INTO Users VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Users VALUES(
                                         '${escape(id)}',
                                         '${firstName}',
                                         '${lastName}',
@@ -154,15 +156,17 @@ creatorRouter.post('/', async function (req, res) {
                                          ${isAuthorized},
                                         '${phone}'
                                     )`
-        )
-    if (isCreatorSaved[1] == 1) {
+            )
         const saved = await sequelize
             .query(
                 `SELECT * FROM Users
-                    WHERE Users.id = '${isCreatorSaved[0]}'`
+                    WHERE Users.id = '${id}'`
             )
         res.send(saved[0][0])
-    } else res.send('saving error')
+    }
+    catch (err) {
+        res.send('saving error')
+    }
 })
 
 creatorRouter.put('/:id', async function (req, res) {
