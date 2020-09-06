@@ -88,21 +88,33 @@ creatorRouter.get('/:id', async function (req, res) {
             WHERE showEventID = ${Events[0][0].id}
             GROUP BY showEventID`
             )
+            const ratings = await sequelize
+            .query(
+                `SELECT AVG(amount) AS rating, showRatingShowID
+            FROM Show_Ratings
+            GROUP BY Show_Ratings.showRatingShowID`
+            )
         // console.log(Events[0])
         // console.log(Shows[0])
 
         creator['Events'] = Events[0]
         for (let event of creator.Events) {
+            let Show = {}
             let futureShows = []
             let pastShows = []
-            console.log(event)
             for (let show of Shows[0]) {
+                // Show = { ...show }
+                let found = ratings[0].find(r => r.showRatingShowID === show.id)
+                if (found) Show['rating'] = found.rating.slice(0, 3)
+                Shows.push({ ...Show})
                 if (show.showEventID === event.id) {
                     moment() < moment(show.startTime).tz("Europe/Paris") ?
-                        futureShows.push(show) :
-                        pastShows.push(show)
+                    futureShows.push(show) :
+                    pastShows.push(show)
                 }
             }
+
+            event['shows'] = [...Shows[0]]
             event['futureShows'] = [...futureShows]
             event['pastShows'] = [...pastShows]
         }

@@ -139,10 +139,10 @@ eventRouter.post('/event', async function (req, res) {
         coverImgURL,
         hashtags
     } = req.body
-    try{
+    try {
         await sequelize
-        .query(
-            `INSERT INTO Events VALUES(
+            .query(
+                `INSERT INTO Events VALUES(
                                          ${id},
                                         '${name}',
                                         '${description}',
@@ -153,36 +153,36 @@ eventRouter.post('/event', async function (req, res) {
                                          ${categoryID},
                                         '${coverImgURL}'
                                     )`
-        )
-    for (let hashtag of hashtags) {
-        let hashtagID = await sequelize
-            .query(`SELECT id FROM Hashtags
+            )
+        for (let hashtag of hashtags) {
+            let hashtagID = await sequelize
+                .query(`SELECT id FROM Hashtags
                 Where Hashtags.name = '${hashtag}'`)
-        if (!hashtagID[1].length) {
-            let hash = await sequelize
-                .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
-            await sequelize.query(
-                `INSERT INTO Events_Hashtags VALUES(
+            if (!hashtagID[1].length) {
+                let hash = await sequelize
+                    .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
+                await sequelize.query(
+                    `INSERT INTO Events_Hashtags VALUES(
                                     ${event[0]},
                                     ${hash[0]}
                                 )`
-            )
-        } else {
-            await sequelize.query(
-                `INSERT INTO Events_Hashtags VALUES(
+                )
+            } else {
+                await sequelize.query(
+                    `INSERT INTO Events_Hashtags VALUES(
                     ${event[0]},
                     ${hashtagID[0]}
                     )`
-            )
+                )
+            }
         }
-    }
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
             WHERE Events.id = ${id}`
             )
         res.send(saved[0][0])
-    }catch(err){
+    } catch (err) {
         res.send('saving error')
     }
 })
@@ -234,14 +234,18 @@ eventRouter.put('/:id', async function (req, res) {
     }
 })
 
-eventRouter.delete('/:id', async function (req, res) {
-    const { id } = req.params
-    const { table } = req.body
+eventRouter.delete('/', async function (req, res) {
+    const { eventId, showId } = req.query
+    const id = eventId ? eventId : showId
+    let tableName = ''
+    eventId ?
+        tableName = 'Events' : showId ?
+            tableName = 'Shows' : tableName = 'error'
     try {
         await sequelize
             .query(
-                `DELETE FROM ${table}
-                WHERE id = ${id}`
+                `DELETE FROM ${tableName}
+                WHERE ${tableName}.id = ${id}`
             )
         res.send(id)
     }
@@ -249,6 +253,8 @@ eventRouter.delete('/:id', async function (req, res) {
         res.send('delete err')
     }
 })
+
+
 
 module.exports = eventRouter
 
