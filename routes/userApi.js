@@ -52,7 +52,7 @@ userRouter.get('/:id', async function (req, res) {
     try {
         const userData = await sequelize
             .query(
-                `SELECT id, username, imageURL, userRole, coverImgURL
+                `SELECT id, username, imageURL, userRole
              FROM Users
              WHERE Users.id LIKE '%${id}%'`
             )
