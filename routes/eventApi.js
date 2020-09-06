@@ -128,7 +128,6 @@ eventRouter.get('/:id', async function (req, res) {
 
 eventRouter.post('/event', async function (req, res) {
     const {
-        id,
         name,
         description,
         imageURL,
@@ -143,7 +142,7 @@ eventRouter.post('/event', async function (req, res) {
         await sequelize
             .query(
                 `INSERT INTO Events VALUES(
-                                         ${id},
+                                         null,
                                         '${name}',
                                         '${description}',
                                         '${imageURL}',

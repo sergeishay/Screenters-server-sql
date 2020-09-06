@@ -34,13 +34,19 @@ creatorRouter.get('/', async function (req, res) {
     if (isEvents && isShows) {
         const creators = await sequelize
             .query(
-                `SELECT *
-                    FROM Users AS u,
-                         Events AS e,
-                         Shows AS s
-                    WHERE s.showEventID = e.id
-                    AND e.creatorID = 'u.id'`
+                `SELECT u.firstName, u.lastName, u.about, u.imageURL
+                FROM Users AS u, Show_Ratings AS s
+                WHERE u.userRole = 'Creator'
+                AND u.id NOT IN(SELECT creatorID
+                            FROM Events)`
+                // `SELECT *
+                //     FROM Users AS u,
+                //          Events AS e,
+                //          Shows AS s
+                //     WHERE s.showEventID = e.id
+                //     AND e.creatorID = 'u.id'`
             )
+            console.log(creators)
         res.send(creators[0])
     }
     else if (isEvents) {
@@ -64,6 +70,7 @@ creatorRouter.get('/', async function (req, res) {
             )
         res.send(creators[0])
     }
+
 })
 
 creatorRouter.get('/:id', async function (req, res) {
@@ -76,8 +83,8 @@ creatorRouter.get('/:id', async function (req, res) {
             `SELECT * FROM Users
             WHERE Users.id = '${escape(id)}'`
         )
-    creator['Data'] = Data[0][0]
 
+    creator['Data'] = Data[0][0]
     const Events = await sequelize
         .query(
             `SELECT * FROM Events

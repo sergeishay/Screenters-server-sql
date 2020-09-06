@@ -28,6 +28,14 @@ const sequelize = new Sequelize(
         language: 'en',
     }
 )
+const clearUserId =(userId)=>{
+    let newLineIndex = userId.indexOf('|')
+    let newUserId = userId
+    if(newLineIndex>0){
+        newUserId = newUserId.substring(newLineIndex + 1 , newUserId.length - 1)
+    }
+    return newUserId
+}
 
 
 userRouter.get('/', async function (req, res) {
@@ -37,7 +45,7 @@ userRouter.get('/', async function (req, res) {
 })
 
 userRouter.get('/:id', async function (req, res) {
-    const { id } = req.params
+    const id = clearUserId(req.params.id)
     const user = {}
     const pastShows = []
     const futureShows = []
@@ -46,7 +54,7 @@ userRouter.get('/:id', async function (req, res) {
             .query(
                 `SELECT id, username, imageURL, userRole, coverImgURL
              FROM Users
-             WHERE Users.id = '${escape(id)}'`
+             WHERE Users.id LIKE '%${id}%'`
             )
         const shows = await sequelize
             .query(
