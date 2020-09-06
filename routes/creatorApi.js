@@ -88,16 +88,23 @@ creatorRouter.get('/:id', async function (req, res) {
             WHERE showEventID = ${Events[0][0].id}
             GROUP BY showEventID`
             )
+        // console.log(Events[0])
+        // console.log(Shows[0])
 
-        creator['Events'] = Events[0][0]
+        creator['Events'] = Events[0]
         for (let event of creator.Events) {
+            let futureShows = []
+            let pastShows = []
+            console.log(event)
             for (let show of Shows[0]) {
                 if (show.showEventID === event.id) {
                     moment() < moment(show.startTime).tz("Europe/Paris") ?
-                        event['futureShows'].push(show) :
-                        event['pastShows'].push(show)
+                        futureShows.push(show) :
+                        pastShows.push(show)
                 }
             }
+            event['futureShows'] = [...futureShows]
+            event['pastShows'] = [...pastShows]
         }
     }
     res.send(creator)
