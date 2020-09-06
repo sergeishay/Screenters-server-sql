@@ -46,14 +46,14 @@ userRouter.get('/:id', async function (req, res) {
             .query(
                 `SELECT id, username, imageURL
              FROM Users
-             WHERE Users.id = '${id}'`
+             WHERE Users.id = '${escape(id)}'`
             )
         const shows = await sequelize
             .query(
                 `SELECT * 
             FROM Shows AS s, User_Shows AS u
             WHERE s.id = u.showId
-            AND u.userId = '${userData[0][0].id}'`
+            AND u.userId = '${escape(id)}'`
             )
         for (let show of shows[0]) {
             moment() < moment(show.startTime).tz("Europe/Paris") ?
