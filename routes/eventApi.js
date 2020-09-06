@@ -256,8 +256,6 @@ eventRouter.delete('/', async function (req, res) {
     }
 })
 
-
-
 module.exports = eventRouter
 
 
