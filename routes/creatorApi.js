@@ -74,7 +74,7 @@ creatorRouter.get('/:id', async function (req, res) {
     const Data = await sequelize
         .query(
             `SELECT * FROM Users
-            WHERE Users.id = '${id}'`
+            WHERE Users.id = '${escape(id)}'`
         )
         console.log(Data)
     creator['Data'] = Data[0][0]
@@ -82,7 +82,7 @@ creatorRouter.get('/:id', async function (req, res) {
     const Events = await sequelize
         .query(
             `SELECT * FROM Events
-            WHERE creatorID = '${id}'`
+            WHERE creatorID = '${escape(id)}'`
         )
     if (Events[0].length) {
         const Shows = await sequelize
@@ -97,12 +97,9 @@ creatorRouter.get('/:id', async function (req, res) {
             FROM Show_Ratings
             GROUP BY Show_Ratings.showRatingShowID`
             )
-        // console.log(Events[0])
-        // console.log(Shows[0])
  
         creator['Events'] = Events[0]
         for (let event of creator.Events) {
-            console.log(rating)
             let Show = {}
             let futureShows = []
             let pastShows = []
