@@ -101,7 +101,6 @@ creatorRouter.get('/:id', async function (req, res) {
  
         creator['Events'] = Events[0]
         for (let event of creator.Events) {
-            console.log(rating)
             let Show = {}
             let futureShows = []
             let pastShows = []

@@ -154,32 +154,36 @@ eventRouter.post('/event', async function (req, res) {
                                         '${coverImgURL}'
                                     )`
             )
+        const EventId = await sequelize
+            .query(`SELECT id FROM Events
+                    WHERE Events.name = '${name}'`)
+                    
         for (let hashtag of hashtags) {
-            let hashtagID = await sequelize
+            const hashtagID = await sequelize
                 .query(`SELECT id FROM Hashtags
-                Where Hashtags.name = '${hashtag}'`)
-            if (!hashtagID[1].length) {
-                let hash = await sequelize
+            WHERE Hashtags.name = '${hashtag}'`)
+            if (hashtagID[1].length) {
+                await sequelize.query(
+                    `INSERT INTO Events_Hashtags VALUES(
+                    LAST_INSERT_ID(),
+                    ${hashtagID[0][0].id}
+                    )`
+                )
+            } else {
+                const hash = await sequelize
                     .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
                 await sequelize.query(
                     `INSERT INTO Events_Hashtags VALUES(
-                                    ${event[0]},
-                                    ${hash[0]}
-                                )`
-                )
-            } else {
-                await sequelize.query(
-                    `INSERT INTO Events_Hashtags VALUES(
-                    ${event[0]},
-                    ${hashtagID[0]}
-                    )`
+                        ${EventId[0][0].id},
+                        LAST_INSERT_ID()
+                        )`
                 )
             }
         }
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
-            WHERE Events.id = ${id}`
+            WHERE Events.id = ${EventId[0][0].id}`
             )
         res.send(saved[0][0])
     } catch (err) {
