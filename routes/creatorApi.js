@@ -88,7 +88,7 @@ creatorRouter.get('/:id', async function (req, res) {
             WHERE showEventID = ${Events[0][0].id}
             GROUP BY showEventID`
             )
-            const ratings = await sequelize
+        const ratings = await sequelize
             .query(
                 `SELECT AVG(amount) AS rating, showRatingShowID
             FROM Show_Ratings
@@ -106,11 +106,11 @@ creatorRouter.get('/:id', async function (req, res) {
                 // Show = { ...show }
                 let found = ratings[0].find(r => r.showRatingShowID === show.id)
                 if (found) Show['rating'] = found.rating.slice(0, 3)
-                Shows.push({ ...Show})
+                Shows.push({ ...Show })
                 if (show.showEventID === event.id) {
                     moment() < moment(show.startTime).tz("Europe/Paris") ?
-                    futureShows.push(show) :
-                    pastShows.push(show)
+                        futureShows.push(show) :
+                        pastShows.push(show)
                 }
             }
 
@@ -119,6 +119,13 @@ creatorRouter.get('/:id', async function (req, res) {
             event['pastShows'] = [...pastShows]
         }
     }
+    const Reviews = await sequelize
+        .query(
+            `SELECT * FROM Creator_Reviews
+            WHERE Creator_Reviews.reviewCreatorID = '${id}'`
+        )
+    creator['Reviews'] = Reviews[0]
+
     res.send(creator)
 })
 
