@@ -31,8 +31,7 @@ const sequelize = new Sequelize(
 eventRouter.get('/', async function (req, res) {
     const Events = []
     let event = {}
-    const events = await sequelize
-    .query(`SELECT * FROM Events`)
+    const events = await sequelize.query(`SELECT * FROM Events`)
     for (let Event of events[0]) {
         let Show = {}
         const Shows = []
@@ -140,7 +139,8 @@ eventRouter.post('/event', async function (req, res) {
         coverImgURL,
         hashtags
     } = req.body
-    const isEventSaved = await sequelize
+    try{
+        await sequelize
         .query(
             `INSERT INTO Events VALUES(
                                          ${id},
@@ -176,16 +176,15 @@ eventRouter.post('/event', async function (req, res) {
             )
         }
     }
-
-    if (isEventSaved[1] == 1) {
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
-            WHERE Events.id = ${isEventSaved[0]}`
+            WHERE Events.id = ${id}`
             )
-
         res.send(saved[0][0])
-    } else res.send('saving error')
+    }catch(err){
+        res.send('saving error')
+    }
 })
 
 eventRouter.post('/show', async function (req, res) {
@@ -195,48 +194,61 @@ eventRouter.post('/show', async function (req, res) {
         endTime,
         showEventID,
     } = req.body
-    const isShowSaved = await sequelize
-        .query(
-            `INSERT INTO Shows VALUES(
+    console.log(req.body)
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Shows VALUES(
                                          ${id},
                                         '${startTime}',
                                         '${endTime}',
                                          ${showEventID}
                                     )`
-        )
-    if (isShowSaved[1] == 1) {
+            )
         const saved = await sequelize
             .query(
                 `SELECT * FROM Shows
-                WHERE Shows.id = ${isShowSaved[0]}`
+                WHERE Shows.id = LAST_INSERTED_ID()`
             )
         res.send(saved[0][0])
-    } else res.send('saving error')
+    } catch (err) {
+        res.send('saving error')
+    }
 })
 
 eventRouter.put('/:id', async function (req, res) {
-    const { field, value } = req.body
     const { id } = req.params
+    const { field } = req.body
+    let { value } = req.body
     if (typeof value === 'string') value = `'${value}'`
-
-    const event = await sequelize
-        .query(
-            `UPDATE Events
+    try {
+        await sequelize
+            .query(
+                `UPDATE Events
         SET ${field} = ${value}
-        WHERE Events.id = ${id}`
-        )
-    res.send(event)
+        WHERE id = ${id}`
+            )
+        res.send(true)
+    }
+    catch (err) {
+        res.send(false)
+    }
 })
 
 eventRouter.delete('/:id', async function (req, res) {
     const { id } = req.params
     const { table } = req.body
-    const event = await sequelize
-        .query(
-            `DELETE FROM ${table}
-                WHERE ${table}.id = '${id}'`
-        )
-    res.send(event[0][0].id)
+    try {
+        await sequelize
+            .query(
+                `DELETE FROM ${table}
+                WHERE id = ${id}`
+            )
+        res.send(id)
+    }
+    catch (err) {
+        res.send('delete err')
+    }
 })
 
 module.exports = eventRouter

@@ -32,9 +32,9 @@ reviewRouter.get('/:id', async function (req, res) {
     const { id } = req.params
     const { tableName } = req.body
     const table = tableName === 'Event' ?
-                                 'Show_Review' :
-                                  tableName + '_Review'
-                                 
+        'Show_Review' :
+        tableName + '_Review'
+
     const Reviews = await sequelize
         .query(
             `SELECT * FROM ${table}
@@ -54,9 +54,10 @@ reviewRouter.post('/creator', async function (req, res) {
         time,
         parentReview
     } = req.body
-    const isReviewSaved = await sequelize
-        .query(
-            `INSERT INTO Creator_Reviews VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Creator_Reviews VALUES(
                                          ${id},
                                         '${header}',
                                         '${text}',
@@ -65,15 +66,18 @@ reviewRouter.post('/creator', async function (req, res) {
                                         '${time}',
                                          ${parentReview}
                                     )`
-        )
-        if (isReviewSaved[1]==1) {
-            const saved = await sequelize
-                .query(
-                    `SELECT * FROM Creator_Reviews
-                WHERE Creator_Reviews.id = ${saved[0]}`
-                )
-            res.send(isReviewSaved[0][0])
-        } else res.send('saving error')
+            )
+
+        const isReviewSaved = await sequelize
+            .query(
+                `SELECT * FROM Creator_Reviews
+                WHERE Creator_Reviews.id = ${id}`
+            )
+        res.send(isReviewSaved[0][0])
+    }
+    catch (err) {
+        res.send('saving error')
+    }
 })
 
 reviewRouter.post('/show', async function (req, res) {
@@ -87,9 +91,10 @@ reviewRouter.post('/show', async function (req, res) {
         reviewParentID,
         reviewEventID
     } = req.body
-    const isReviewSaved = await sequelize
-        .query(
-            `INSERT INTO Show_Review VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Show_Review VALUES(
                                          ${id},
                                         '${header}',
                                         '${text}',
@@ -99,26 +104,33 @@ reviewRouter.post('/show', async function (req, res) {
                                         ${reviewParentID},
                                         ${reviewEventID}
                                     )`
-        )
-        if (isReviewSaved[1]==1) {
-            const saved = await sequelize
-                .query(
-                    `SELECT * FROM Show_Reviews
-                WHERE Show_Review.id = ${saved[0]}`
-                )
-            res.send(isReviewSaved[0][0])
-        } else res.send('saving error')    
+            )
+        const isReviewSaved = await sequelize
+            .query(
+                `SELECT * FROM Show_Reviews
+                WHERE Show_Review.id = ${id}`
+            )
+        res.send(isReviewSaved[0][0])
+    }
+    catch (err) {
+        res.send('saving error')
+    }
 })
 
 reviewRouter.delete('/:id', async function (req, res) {
     const { id } = req.params
     const { table } = req.body
-    const review = await sequelize
+    try{
+        await sequelize
         .query(
             `DELETE FROM ${table}
-            WHERE ${table}.id = '${id}'`
+            WHERE id = '${id}'`
         )
-    res.send(review[0][0].id)
+    res.send(id)
+        }
+        catch(err){
+            res.send('delete err')
+        }
 })
 
 module.exports = reviewRouter

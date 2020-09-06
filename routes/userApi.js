@@ -72,21 +72,25 @@ userRouter.get('/:id', async function (req, res) {
 
 userRouter.post('/show', async function (req, res) {
     const { userID, showID } = req.body
-    const userShow = await sequelize
-        .query(
-            `INSERT INTO User_Shows VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO User_Shows VALUES(
                                '${escape(userID)}',
                                 ${showID}
                             )`
-        )
-    if (userShow[1] == 1) {
+            )
+
         const saved = await sequelize
             .query(
                 `SELECT * FROM User_Shows
-                WHERE ${userShow[0]}`
+                WHERE User_Shows.id = LAST_INSERT_ID()`
             )
         res.send(saved[0][0])
-    } else (res.send('saving error'))
+    }
+    catch (err) {
+        res.send('saving error')
+    }
 })
 
 
@@ -107,9 +111,10 @@ userRouter.post('/', async function (req, res) {
         isAuthorized,
         phone
     } = req.body
-    const isUserSaved = await sequelize
-        .query(
-            `INSERT INTO Users VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Users VALUES(
                                         '${escape(id)}',
                                         '${firstName}',
                                         '${lastName}',
@@ -126,48 +131,54 @@ userRouter.post('/', async function (req, res) {
                                         '${phone}'
                                     )`
         )
-        // const isUserHere =await sequelize.query(`SELECT `)
-        //         console.log(isUserHere)
-    if (isUserSaved[1] == 1) {
-
+                    console.log("firstQuery")
         const saved = await sequelize
-        .query(
-            `SELECT * FROM Users
-            WHERE Users.id = '${id}'`
+            .query(
+                `SELECT * FROM Users
+            WHERE Users.id = '${escape(id)}'`
             )
             console.log(saved , "fdgfgsdfgsdfgfdhsdfgsfgsdfgfdhsgfsgdfggs")
         res.send(saved[0][0])
-    } else res.send('saving error')
+    }
+    catch (err) {
+        res.send('saving error')
+    }
 })
 
 userRouter.put('/:id', async function (req, res) {
-    const { field, value } = req.body
     const { id } = req.params
+    const { field } = req.body
+    let { value } = req.body
     if (typeof value === 'string') value = `'${value}'`
 
-    const user = await sequelize
-        .query(
-            `UPDATE Users
+    try {
+        await sequelize
+            .query(
+                `UPDATE Users
             SET ${field} = ${value}
-            WHERE Users.id = '${id}'`
-        )
-    res.send(user)
+            WHERE id = '${id}'`
+            )
+        res.send(true)
+    }
+    catch (err) {
+        res.send(false)
+    }
 
-    // const saved = await sequelize
-    //     .query(
-    //         `SELECT * FROM User_Shows
-    //          WHERE ${user[0]}`
-    //     )
 })
 
 userRouter.delete('/:id', async function (req, res) {
     const { id } = req.params
-    const user = await sequelize
-        .query(
-            `DELETE FROM Users
-            WHERE Users.id = '${id}'`
-        )
-    res.send(user)
+    try {
+        await sequelize
+            .query(
+                `DELETE FROM Users
+            WHERE id = '${id}'`
+            )
+        res.send(id)
+    }
+    catch (err) {
+        res.send('delete err')
+    }
 })
 
 module.exports = userRouter

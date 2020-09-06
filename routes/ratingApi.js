@@ -50,24 +50,27 @@ ratingRouter.post('/', async function (req, res) {
         showRatingUserID,
         showRatingEventID
     } = req.body
-    const isRatingSaved = await sequelize
-        .query(
-            `INSERT INTO Show_Ratings VALUES(
+    try {
+        await sequelize
+            .query(
+                `INSERT INTO Show_Ratings VALUES(
                                          ${id},
                                          ${amount},
                                          ${showRatingShowID},
                                          ${showRatingUserID},
                                          ${showRatingEventID}
                                     )`
-        )
-    if (isRatingSaved[1] == 1) {
+            )
+
         const saved = await sequelize
             .query(
                 `SELECT * FROM Show_Ratings
-                WHERE Show_Ratings.id = ${isRatingSaved[0]}`
+                WHERE Show_Ratings.id = ${id}`
             )
         res.send(saved[0][0])
-    } else res.send('saving error')
+    } catch (err) {
+        res.send('saving error')
+    }
 })
 
 module.exports = ratingRouter
