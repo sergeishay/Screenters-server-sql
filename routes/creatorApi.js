@@ -97,6 +97,7 @@ creatorRouter.get('/:id', async function (req, res) {
             )
 
         creator['Data'] = Data[0][0]
+        console.log(Data, "====================================================================");
         const ratings = await sequelize
             .query(
                 `SELECT AVG(amount) AS rating, showRatingShowID
@@ -138,14 +139,17 @@ creatorRouter.get('/:id', async function (req, res) {
                 event['pastShows'] = [...pastShows]
             }
             rating /= numOfRatedShows
+        } else {
+            creator["Events"] = []
         }
         const Reviews = await sequelize
             .query(
                 `SELECT * FROM Creator_Reviews
-            WHERE Creator_Reviews.reviewCreatorID = '${id}'`
+            WHERE Creator_Reviews.reviewCreatorID = '${escape(id)}'`
             )
-        creator['rating'] = rating
+        creator['Rating'] = rating
         creator['Reviews'] = Reviews[0]
+        console.log(creator);
         res.send(creator)
     } catch (err) {
         res.send('get failed')

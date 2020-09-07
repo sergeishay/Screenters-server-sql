@@ -31,7 +31,7 @@ const sequelize = new Sequelize(
 eventRouter.get('/', async function (req, res) {
     const Events = []
     let event = {}
-    const events = await sequelize.query(`SELECT * FROM Events`)
+    const events = await sequelize.query(`SELECT * FROM Events LIMIT 10`)
     for (let Event of events[0]) {
         let Show = {}
         const Shows = []
@@ -156,28 +156,28 @@ eventRouter.post('/event', async function (req, res) {
         const EventId = await sequelize
             .query(`SELECT id FROM Events
                     WHERE Events.name = '${name}'`)         
-        for (let hashtag of hashtags) {
-            const hashtagID = await sequelize
-                .query(`SELECT id FROM Hashtags
-            WHERE Hashtags.name = '${hashtag}'`)
-            if (hashtagID[1].length) {
-                await sequelize.query(
-                    `INSERT INTO Events_Hashtags VALUES(
-                    LAST_INSERT_ID(),
-                    ${hashtagID[0][0].id}
-                    )`
-                )
-            } else {
-                const hash = await sequelize
-                    .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
-                await sequelize.query(
-                    `INSERT INTO Events_Hashtags VALUES(
-                        ${EventId[0][0].id},
-                        LAST_INSERT_ID()
-                        )`
-                )
-            }
-        }
+        // for (let hashtag of hashtags) {
+        //     const hashtagID = await sequelize
+        //         .query(`SELECT id FROM Hashtags
+        //     WHERE Hashtags.name = '${hashtag}'`)
+        //     if (hashtagID[1].length) {
+        //         await sequelize.query(
+        //             `INSERT INTO Events_Hashtags VALUES(
+        //             LAST_INSERT_ID(),
+        //             ${hashtagID[0][0].id}
+        //             )`
+        //         )
+        //     } else {
+        //         const hash = await sequelize
+        //             .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
+        //         await sequelize.query(
+        //             `INSERT INTO Events_Hashtags VALUES(
+        //                 ${EventId[0][0].id},
+        //                 LAST_INSERT_ID()
+        //                 )`
+        //         )
+        //     }
+        // }
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
