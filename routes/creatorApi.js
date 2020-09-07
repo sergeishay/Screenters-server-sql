@@ -34,8 +34,14 @@ creatorRouter.get('/', async function (req, res) {
     if (isEvents && isShows) {
         const creators = await sequelize
             .query(
-                `SELECT DISTINCT u.firstName, u.lastName, u.about, u.imageURL, AVG(s.amount) AS rating
-                FROM Users AS u, Show_Ratings AS s, Events AS e
+                `SELECT u.firstName,
+                        u.lastName,
+                        u.about,
+                        u.imageURL,
+                        AVG(s.amount) AS rating
+                FROM Users AS u,
+                     Show_Ratings AS s,
+                     Events AS e
                 WHERE u.userRole = 'CREATOR'
                 AND s.showRatingEventID = e.id`
             )
@@ -103,7 +109,7 @@ creatorRouter.get('/:id', async function (req, res) {
                 let futureShows = []
                 let pastShows = []
                 for (let show of Shows[0]) {
-                    numOfShows++
+                    // numOfShows++
                     let found = ratings[0].find(r => r.showRatingShowID === show.id)
                     if (found) rating += parseFloat(found.rating.slice(0, 3))
                     Shows.push({ ...Show })
@@ -113,12 +119,14 @@ creatorRouter.get('/:id', async function (req, res) {
                             pastShows.push(show)
                     }
                 }
+                rating/= Shows[0].length
+                console.log(rating)
                 event['shows'] = [...Shows[0]]
                 event['futureShows'] = [...futureShows]
                 event['pastShows'] = [...pastShows]
             }
 
-            rating /= (numOfShows * Events[0].length)
+            rating /= (Events[0].length)
         }
         const Reviews = await sequelize
             .query(
