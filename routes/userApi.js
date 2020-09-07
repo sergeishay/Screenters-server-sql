@@ -64,11 +64,15 @@ userRouter.get('/:id', async function (req, res) {
             AND u.userId = '${escape(id)}'`
             )
         for (let show of shows[0]) {
-            moment() < moment(show.startTime).tz("Europe/Paris") ?
+            moment() < moment(show.startTime).tz("Asia/Jerusalem") ?
                 futureShows.push(show) :
                 pastShows.push(show)
         }
         user['id'] = userData[0][0].id
+        user['firstName'] = userData[0][0].firstName
+        user['lastName'] = userData[0][0].lastName
+        user['email'] = userData[0][0].email
+        user['phone'] = userData[0][0].phone
         user['userRole'] = userData[0][0].userRole
         user['username'] = userData[0][0].username
         user['imageURL'] = userData[0][0].imageURL
