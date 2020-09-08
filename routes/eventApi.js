@@ -28,54 +28,41 @@ const sequelize = new Sequelize(
     }
 )
 
-eventRouter.get('/', async function (req, res) {
+eventRouter.get('/', async (req , res)=>{
     const Events = []
     let event = {}
-    const events = await sequelize.query(`SELECT * FROM Events LIMIT 10`)
-    for (let Event of events[0]) {
+    const ratings = await sequelize.query( `SELECT AVG(amount) AS rating, showRatingShowID FROM Show_Ratings GROUP BY Show_Ratings.showRatingShowID` )
+    const events = await sequelize.query(`SELECT * FROM Events`)
+    console.log(events)
+    const promises = events[0].map(async query => {
         let Show = {}
         const Shows = []
-        const hashes = []
-        const shows = await sequelize
-            .query(
-                `SELECT *
-            FROM Shows 
-            WHERE showEventID = ${Event.id}`
-            )
-        const ratings = await sequelize
-            .query(
-                `SELECT AVG(amount) AS rating, showRatingShowID
-            FROM Show_Ratings
-            GROUP BY Show_Ratings.showRatingShowID`
-            )
-
-        const hashtags = await sequelize
-            .query(
-                `SELECT * 
-            FROM Hashtags AS h,
-            Events_Hashtags AS e
-            WHERE h.id = e.hashtagId
-            AND e.eventId = ${Event.id}`
-            )
-        for (let hashtag of hashtags[0]) {
-            hashes.push(hashtag)
-        }
-
+        const shows = await sequelize.query(`SELECT * FROM Shows  WHERE showEventID = ${query.id}`)
         for (let show of shows[0]) {
             Show = { ...show }
             let found = ratings[0].find(r => r.showRatingShowID === show.id)
             if (found) Show['rating'] = found.rating.slice(0, 3)
             Shows.push({ ...Show })
         }
-
-        event = { ...Event }
+        event = { ...query }
         event['shows'] = [...Shows]
-        event['hashtags'] = [...hashes]
+        event['hashtags'] = []
         Events.push({ ...event })
-    }
-    res.send(Events)
-
+    })
+    Promise.all(promises).then(result => {
+        res.send(Events)
+    })
+    .catch((error)=>{
+        console.log(error)
+        return error
+    })
 })
+
+
+
+
+
+
 
 eventRouter.get('/:id', async function (req, res) {
     const { id } = req.params
@@ -155,29 +142,11 @@ eventRouter.post('/event', async function (req, res) {
             )
         const EventId = await sequelize
             .query(`SELECT id FROM Events
-                    WHERE Events.name = '${name}'`)         
-        // for (let hashtag of hashtags) {
-        //     const hashtagID = await sequelize
-        //         .query(`SELECT id FROM Hashtags
-        //     WHERE Hashtags.name = '${hashtag}'`)
-        //     if (hashtagID[1].length) {
-        //         await sequelize.query(
-        //             `INSERT INTO Events_Hashtags VALUES(
-        //             LAST_INSERT_ID(),
-        //             ${hashtagID[0][0].id}
-        //             )`
-        //         )
-        //     } else {
-        //         const hash = await sequelize
-        //             .query(`INSERT INTO Hashtags VALUES(null,'${hashtag}')`)
-        //         await sequelize.query(
-        //             `INSERT INTO Events_Hashtags VALUES(
-        //                 ${EventId[0][0].id},
-        //                 LAST_INSERT_ID()
-        //                 )`
-        //         )
-        //     }
-        // }
+                    WHERE Events.name = '${name}'`)
+
+
+
+                    
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
