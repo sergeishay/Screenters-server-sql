@@ -24,4 +24,6 @@ app.use('/api/reviews/', reviewRouter)
 app.use('/api/ratings/', ratingRouter)
 app.use('/api/events/', eventRouter)
 
-app.listen(8080, () => console.log("server up and running on port 8080"))
+
+const port = process.env.PORT || 8080
+app.listen(port, () => console.log(`server up and running on port ${port}`))
