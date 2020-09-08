@@ -64,6 +64,7 @@ userRouter.get('/:id', async function (req, res) {
             WHERE s.id = u.showId
             AND u.userId LIKE '%${id}%'`
             )
+            console.log(await shows[0]);
         for (let show of shows[0]) {
             moment() < moment(show.startTime).tz("Asia/Jerusalem") ?
                 futureShows.push(show) :
@@ -168,7 +169,7 @@ userRouter.put('/:id', async function (req, res) {
             .query(
                 `UPDATE Users
             SET ${field} = ${value}
-            WHERE id = '${id}'`
+            WHERE id = '${escape(id)}'`
             )
         res.send(true)
     }
@@ -184,7 +185,7 @@ userRouter.delete('/show/:userID/:showID', async function (req, res) {
         await sequelize
             .query(
                 `DELETE FROM User_Shows
-            WHERE userID = '${userID}'
+            WHERE userID = '${escape(userID)}'
             AND showID = ${showID}`
             )
         res.send(true)

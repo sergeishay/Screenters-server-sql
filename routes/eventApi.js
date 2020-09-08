@@ -88,17 +88,17 @@ eventRouter.get('/:id', async function (req, res) {
     GROUP BY Show_Ratings.showRatingShowID`
         )
 
-    const hashtags = await sequelize
-        .query(
-            `SELECT * 
-    FROM Hashtags AS h,
-    Events_Hashtags AS e
-    WHERE h.id = e.hashtagId
-    AND e.eventId = ${eventData[0][0].id}`
-        )
-    for (let hashtag of hashtags[0]) {
-        hashes.push(hashtag)
-    }
+    // const hashtags = await sequelize
+    //     .query(
+    //         `SELECT * 
+    // FROM Hashtags AS h,
+    // Events_Hashtags AS e
+    // WHERE h.id = e.hashtagId
+    // AND e.eventId = ${eventData[0][0].id}`
+    //     )
+    // for (let hashtag of hashtags[0]) {
+    //     hashes.push(hashtag)
+    // }
 
     for (let show of shows[0]) {
         Show = { ...show }

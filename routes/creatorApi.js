@@ -231,7 +231,7 @@ creatorRouter.put('/:id', async function (req, res) {
             .query(
                 `UPDATE Users
             SET ${field} = ${value}
-            WHERE id = '${id}'`
+            WHERE id = '${escape(id)}'`
             )
         res.send(true)
     }
