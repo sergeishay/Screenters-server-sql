@@ -60,8 +60,8 @@ reviewRouter.post('/creator', async function (req, res) {
                                          null,
                                         '${header}',
                                         '${text}',
-                                         ${reviewUserID},
-                                         ${reviewCreatorID},
+                                        '${reviewUserID}',
+                                        '${reviewCreatorID}',
                                         '${time}',
                                          ${parentReview}
                                     )`
