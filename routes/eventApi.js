@@ -32,6 +32,11 @@ const sequelize = new Sequelize(
     }
 )
 
+
+
+
+
+
 eventRouter.get('/', async (req , res)=>{
     const Events = []
     let event = {}
@@ -63,10 +68,6 @@ eventRouter.get('/', async (req , res)=>{
 
 
 
-
-
-
-
 eventRouter.get('/:id', async function (req, res) {
     const { id } = req.params
     let event = {}
@@ -91,18 +92,6 @@ eventRouter.get('/:id', async function (req, res) {
     GROUP BY Show_Ratings.showRatingShowID`
         )
 
-    // const hashtags = await sequelize
-    //     .query(
-    //         `SELECT * 
-    // FROM Hashtags AS h,
-    // Events_Hashtags AS e
-    // WHERE h.id = e.hashtagId
-    // AND e.eventId = ${eventData[0][0].id}`
-    //     )
-    // for (let hashtag of hashtags[0]) {
-    //     hashes.push(hashtag)
-    // }
-
     for (let show of shows[0]) {
         Show = { ...show }
         let found = ratings[0].find(r => r.showRatingShowID === show.id)
@@ -116,6 +105,11 @@ eventRouter.get('/:id', async function (req, res) {
     res.send(event)
 })
 
+
+
+
+
+
 eventRouter.post('/event', async function (req, res) {
     const {
         name,
@@ -126,7 +120,6 @@ eventRouter.post('/event', async function (req, res) {
         creatorID,
         categoryID,
         coverImgURL,
-        hashtags
     } = req.body
     try {
         await sequelize
