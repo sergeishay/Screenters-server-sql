@@ -2,6 +2,10 @@ const express = require('express')
 const Sequelize = require('sequelize')
 const eventRouter = express.Router()
 require('dotenv').config()
+
+
+
+
 const {
     DB_URL,
     DB_USER,
@@ -33,7 +37,6 @@ eventRouter.get('/', async (req , res)=>{
     let event = {}
     const ratings = await sequelize.query( `SELECT AVG(amount) AS rating, showRatingShowID FROM Show_Ratings GROUP BY Show_Ratings.showRatingShowID` )
     const events = await sequelize.query(`SELECT * FROM Events`)
-    console.log(events)
     const promises = events[0].map(async query => {
         let Show = {}
         const Shows = []
@@ -146,7 +149,7 @@ eventRouter.post('/event', async function (req, res) {
 
 
 
-                    
+
         const saved = await sequelize
             .query(
                 `SELECT * FROM Events
